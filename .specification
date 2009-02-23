@@ -1,0 +1,36 @@
+--- !ruby/object:Gem::Specification 
+name: ruby_hooks
+version: !ruby/object:Gem::Version 
+  version: 0.0.1
+platform: ruby
+authors: 
+- Kristina Lim
+autorequire: ruby_hooks
+bindir:
+cert_chain: []
+
+date: 2009-02-20 14:18:00 +08:00
+description: This library adds support for chained before, after, and around method callbacks to Ruby.
+email: kristina@syndeomedia.com
+extensions: []
+
+extra_rdoc_files: 
+- README
+has_rdoc: true
+homepage: http://i-think.com.ph/kristina
+post_install_message: 
+rdoc_options: 
+- --title
+- RubyHooks
+- --main
+- README
+- --line-numbers
+require_paths: 
+- lib
+requirements: []
+
+rubyforge_project: ruby_hooks
+signing_key: 
+specification_version: 1
+summary: Support for chained method callbacks.
+test_files: []
