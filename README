@@ -5,13 +5,13 @@ callbacks to Ruby.
 
 == Installation
 
-== Installing the gem
+=== Installing the gem
 
 To install this library as a gem, do:
 
     $ sudo gem install ruby-hooks
 
-== Installing as a Rails plugin
+=== Installing as a Rails plugin
 
 If you are installing this as a plugin for your Rails application, do this
 from your application root:
@@ -20,39 +20,136 @@ from your application root:
 
 == Usage
 
-To add filters, simply set up the class for hooks by calling :uses_hooks, and
-the call the append_to_before_callbacks and append_to_after_callbacks methods
-from your class.
+=== Simplest Usage
+
+Call :uses_hooks on the class to initialize class variables and set it up to
+use ruby_hooks.
+
+When this is done, you can start adding hooks by simply calling append or
+prepend methods for the before, around, and after callbacks. Because method
+aliasing is used when adding hooks, both the main method and the added hooks
+need to be defined before this is done.
 
     class HookTest
+      uses_hooks
+
       def self.main_method
-        puts '-- main method' ; return "RETURN VALUE"
+        puts 'We are calling the main method.' ; return 'RETURN'
       end
   
       def self.after_method
-        puts '-- after callback'
+        puts 'We are calling the after callback.'
       end
 
       def self.before_method
-        puts '-- before callback'
+        puts 'We are calling the before callback.'
       end
 
-      uses_hooks
       append_to_before_callbacks :before_method, :main_method
       append_to_after_callbacks :after_method, :main_method
     end
 
     # >> HookTest.main_method
-    # -- before callback
-    # -- main method
-    # -- after callback
-    # => "RETURN VALUE"
+    # We are calling the before callback.
+    # We are calling the main method.
+    # We are calling the after callback.
+    # => "RETURN"
 
 Note that it is still the return value of the primary non-hook method that is
 returned.
 
+=== Hooking Multiple Methods
+
+Additional hooks can be either appended or prepended to the current list of
+hooks.
+
+    class HookTest
+      uses_hooks
+
+      def self.main_method
+        puts 'We are calling the main method.' ; return 'RETURN'
+      end
+
+      def self.after_method_1
+        puts 'We are calling the first after method.'
+      end
+
+      def self.after_method_2
+        puts 'We are calling the second after method.'
+      end
+
+      def self.after_method_3
+        puts 'We are calling the third after method.'
+      end
+
+      append_to_after_callbacks :after_method_1, :main_method
+      prepend_to_after_callbacks :after_method_2, :main_method
+      append_to_after_callbacks :after_method_3, :main_method
+    end
+
+    # >> HookTest.main_method
+    # We are calling the main method.
+    # We are calling the second after method.
+    # We are calling the first after method.
+    # We are calling the third after method.
+    # => "RETURN"
+
+=== Class Methods and Instance Methods
+
+The examples given so far add class hooks for class methods. No options needed
+to be specified for this as this is the default method type.
+
+To specify if the hooks and main methods are class methods or instance methods,
+the :type option parameter can be used. Valid values are :class and :instance.
+
+    class HookTest
+      uses_hooks
+
+      def main_method
+        puts 'We are calling the main method.' ; return 'RETURN'
+      end
+
+      def after_method
+        puts 'We are calling the after callback.'
+      end
+
+      append_to_after_callbacks :after_method, :main_method, :type => :instance
+    end
+
+    # >> HookTest.new.main_method
+    # We are calling the main method.
+    # We are calling the after callback.
+    # => "RETURN"
+
+=== Method Arguments
+
+Note that arguments passed to the main method are also passed to each of the
+method hooks.
+
+    class HookTest
+      uses_hooks
+
+      def self.main_method(string)
+        puts "We are calling the main method with string #{string}."
+        return 'RETURN'
+      end
+
+      def self.after_method(string)
+        puts "We are calling the after callback with string #{string}."
+      end
+
+      append_to_after_callbacks :after_method, :main_method
+    end
+
+    # >> HookTest.main_method('foo')
+    # We are calling the main method with string foo.
+    # We are calling the after callback with string foo.
+    # => "RETURN"
+
 == To Do
 
-* Around filters are not yet supported.
-* This is not yet tested for modules.
-* This library is not safe for multi-threaded applications.
+* Add support for around filters.
+* Add support for modules.
+* Make library safe for multi-threaded applications.
+* Improve error handling.
+* Modularize code.
