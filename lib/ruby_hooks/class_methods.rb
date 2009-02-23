@@ -8,6 +8,26 @@ class Class
     self.__rh_hooks = {:class => {}, :instance => {}, :module => {}}
   end
 
+  def prepend_to_after_callbacks(callback_method_name, method_name, options = {})
+    method_type = options[:type] || :class
+
+    prepared = __rh_prepare_method_requirements(method_name, options)
+    self.__rh_hooks[method_type][method_name.to_sym][:after].unshift([callback_method_name])
+    self.__rh_current_method_name = method_name
+
+    __rh_setup_method(method_name, options) unless prepared
+  end
+
+  def prepend_to_before_callbacks(callback_method_name, method_name, options = {})
+    method_type = options[:type] || :class
+
+    prepared = __rh_prepare_method_requirements(method_name, options)
+    self.__rh_hooks[method_type][method_name.to_sym][:before].unshift([callback_method_name])
+    self.__rh_current_method_name = method_name
+
+    __rh_setup_method(method_name, options) unless prepared
+  end
+
   def append_to_after_callbacks(callback_method_name, method_name, options = {})
     method_type = options[:type] || :class
 
